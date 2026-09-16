@@ -18,13 +18,13 @@ if ('IntersectionObserver' in window) {
   const sections = new IntersectionObserver(entries => entries.forEach(entry => {
     if (entry.isIntersecting) nav.querySelectorAll('a').forEach(a => a.classList.toggle('active', a.hash === '#' + entry.target.id));
   }), { rootMargin: '-15% 0px -55% 0px' });
-  ['overview','demo','approach','results'].forEach(id => sections.observe(document.getElementById(id)));
+  ['overview','media','demo','approach','results'].forEach(id => sections.observe(document.getElementById(id)));
 }
 // All content below is authored example data for a presentation, not model output.
 const examples = {
   chicken: { name: '宫保鸡丁', note: '“一人份宫保鸡丁，鸡腿肉配花生，微辣。”', tags: ['川味家常菜','一人份','微辣'], price: '¥ 28 / 份', range: '预设同类价格区间：¥ 26–32', copy: '鲜嫩鸡腿肉遇上香脆花生，酱香浓郁，微辣开胃。配一碗米饭，认真吃好这一餐。', ingredient: '鸡腿肉、花生；口味微辣，规格为一人份。' },
-  beef: { name: '番茄炖牛腩', note: '“番茄慢炖牛腩，一人份，不辣。”', tags: ['炖煮热菜','一人份','不辣'], price: '¥ 36 / 份', range: '预设同类价格区间：¥ 32–40', copy: '番茄酸甜融进浓郁汤汁，牛腩慢炖入味。暖暖的一份，给忙碌的一天加点满足。', ingredient: '牛腩、番茄；口味不辣，规格为一人份。' },
-  salad: { name: '田园蔬菜轻食', note: '“生菜、玉米、番茄搭配轻食酱，一人份。”', tags: ['蔬菜轻食','一人份','酱汁另配'], price: '¥ 22 / 份', range: '预设同类价格区间：¥ 20–26', copy: '清脆生菜搭配甜玉米与小番茄，色彩和口感一起上线。酱汁另配，按自己的喜好拌一拌。', ingredient: '生菜、玉米、番茄；酱汁另配，规格为一人份。' }
+  beef: { name: '家常炖牛肉', note: '“牛肉搭配胡萝卜、土豆慢炖，一人份，不辣。”', tags: ['炖煮热菜','一人份','不辣'], price: '¥ 36 / 份', range: '预设同类价格区间：¥ 32–40', copy: '牛肉与胡萝卜、土豆慢炖入味，浓郁汤汁包裹每一口。暖暖的一份，给忙碌的一天加点满足。', ingredient: '牛肉、胡萝卜、土豆；口味不辣，规格为一人份。' },
+  salad: { name: '田园蔬菜轻食', note: '“生菜、番茄、洋葱搭配轻食酱，一人份。”', tags: ['蔬菜轻食','一人份','酱汁另配'], price: '¥ 22 / 份', range: '预设同类价格区间：¥ 20–26', copy: '清脆生菜搭配番茄与洋葱，色彩和口感一起上线。酱汁另配，按自己的喜好拌一拌。', ingredient: '生菜、番茄、洋葱；酱汁另配，规格为一人份。' }
 };
 let selected = 'chicken';
 let playing = false;
@@ -47,7 +47,8 @@ choices.forEach(button => button.addEventListener('click', () => {
   choices.forEach(b => { b.classList.toggle('selected', b === button); b.setAttribute('aria-pressed', String(b === button)); });
   document.querySelector('#input-note').textContent = examples[selected].note;
   document.querySelector('.demo-picture').dataset.kind = selected;
-  document.querySelector('#demo-image').alt = '通用菜品示意插画；当前演示：' + examples[selected].name;
+  document.querySelector('#demo-image').src = 'assets/photos/' + selected + '.jpg';
+  document.querySelector('#demo-image').alt = examples[selected].name + '实拍素材照片';
   resetDemo();
 }));
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -88,3 +89,8 @@ document.querySelector('#copy-result').addEventListener('click', async event => 
     status.textContent = '浏览器未允许复制，请选择商品信息手动复制。';
   }
 });
+
+// Connect the real-photography gallery to the authored demonstration.
+document.querySelectorAll('[data-preview]').forEach(link => link.addEventListener('click', () => {
+  if (!playing) document.querySelector('[data-dish=' + link.dataset.preview + ']').click();
+}));
