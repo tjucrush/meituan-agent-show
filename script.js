@@ -14,13 +14,12 @@ if ('IntersectionObserver' in window) {
   const observer = new IntersectionObserver(entries => entries.forEach(entry => {
     if (entry.isIntersecting) entry.target.classList.add('in-view');
   }), { threshold: .18 });
-  observer.observe(document.querySelector('.metrics'));
   const sections = new IntersectionObserver(entries => entries.forEach(entry => {
     if (entry.isIntersecting) nav.querySelectorAll('a').forEach(a => a.classList.toggle('active', a.hash === '#' + entry.target.id));
   }), { rootMargin: '-15% 0px -55% 0px' });
-  ['overview','media','demo','approach','results'].forEach(id => sections.observe(document.getElementById(id)));
+  ['overview','media','demo'].forEach(id => sections.observe(document.getElementById(id)));
 }
-// All content below is authored example data for a presentation, not model output.
+// 菜品资料作为页面交互的预设内容。
 const examples = {
   chicken: { name: '宫保鸡丁', note: '“一人份宫保鸡丁，鸡腿肉配花生，微辣。”', tags: ['川味家常菜','一人份','微辣'], price: '¥ 28 / 份', range: '预设同类价格区间：¥ 26–32', copy: '鲜嫩鸡腿肉遇上香脆花生，酱香浓郁，微辣开胃。配一碗米饭，认真吃好这一餐。', ingredient: '鸡腿肉、花生；口味微辣，规格为一人份。' },
   beef: { name: '家常炖牛肉', note: '“牛肉搭配胡萝卜、土豆慢炖，一人份，不辣。”', tags: ['炖煮热菜','一人份','不辣'], price: '¥ 36 / 份', range: '预设同类价格区间：¥ 32–40', copy: '牛肉与胡萝卜、土豆慢炖入味，浓郁汤汁包裹每一口。暖暖的一份，给忙碌的一天加点满足。', ingredient: '牛肉、胡萝卜、土豆；口味不辣，规格为一人份。' },
@@ -33,13 +32,13 @@ const run = document.querySelector('#run-demo');
 const status = document.querySelector('#demo-status');
 const choices = [...document.querySelectorAll('[data-dish]')];
 function resetDemo() {
-  steps.forEach((step, i) => { step.className = ''; step.querySelector('.step-index').textContent = i + 1; step.querySelector('.step-state').textContent = '待演示'; });
+  steps.forEach((step, i) => { step.className = ''; step.querySelector('.step-index').textContent = i + 1; step.querySelector('.step-state').textContent = '待开始'; });
   document.querySelector('#output-empty').hidden = false;
   document.querySelector('#output-result').hidden = true;
   document.querySelector('#process-insight').textContent = '把零散的图像与文字，连接成一份完整的商品草稿。';
-  document.querySelector('#copy-result').textContent = '复制示例商品信息 ↗';
-  status.textContent = '准备就绪，选择菜品开始演示。';
-  run.innerHTML = '开始流程演示 <span>→</span>';
+  document.querySelector('#copy-result').textContent = '复制商品资料 ↗';
+  status.textContent = '准备就绪，选择菜品开始体验。';
+  run.innerHTML = '体验一键上菜 <span>→</span>';
 }
 choices.forEach(button => button.addEventListener('click', () => {
   if (playing) return;
@@ -56,15 +55,15 @@ run.addEventListener('click', async () => {
   if (playing) return;
   resetDemo(); playing = true; run.disabled = true;
   choices.forEach(b => b.disabled = true);
-  run.textContent = '正在播放预设流程…';
+  run.textContent = '正在整理商品资料…';
   const item = examples[selected];
-  const insights = [item.ingredient, item.range + '。演示价格仅供流程说明。', '商品信息与价格保持固定，演示营销表达生成及审查步骤。', '图文理解、定价与文案整理完成，示例商品草稿已准备好。'];
+  const insights = [item.ingredient, item.range + '。', '整理商品介绍，准备清晰易读的菜品内容。', '菜品信息、价格与商品介绍已整理完成。'];
   for (let i = 0; i < steps.length; i++) {
-    const step = steps[i]; step.className = 'current'; step.querySelector('.step-state').textContent = '演示中';
+    const step = steps[i]; step.className = 'current'; step.querySelector('.step-state').textContent = '处理中';
     status.textContent = `步骤 ${i + 1}/4：${step.querySelector('strong').textContent}`;
     document.querySelector('#process-insight').textContent = insights[i];
     await delay(matchMedia('(prefers-reduced-motion: reduce)').matches ? 120 : 780);
-    step.className = 'done'; step.querySelector('.step-index').textContent = '✓'; step.querySelector('.step-state').textContent = '已展示';
+    step.className = 'done'; step.querySelector('.step-index').textContent = '✓'; step.querySelector('.step-state').textContent = '已完成';
   }
   document.querySelector('#result-name').textContent = item.name;
   document.querySelector('#result-tags').replaceChildren(...item.tags.map(text => { const span = document.createElement('span'); span.textContent = text; return span; }));
@@ -73,24 +72,24 @@ run.addEventListener('click', async () => {
   document.querySelector('#result-copy').textContent = item.copy;
   document.querySelector('#output-empty').hidden = true;
   document.querySelector('#output-result').hidden = false;
-  status.textContent = '演示完成。所有字段均为预设示例，未发布真实商品。';
+  status.textContent = '商品资料已整理。内容来自页面预设菜品信息。';
   playing = false; run.disabled = false; choices.forEach(b => b.disabled = false);
-  run.innerHTML = '重新播放演示 <span>↻</span>';
+  run.innerHTML = '重新体验一键上菜 <span>↻</span>';
 });
 document.querySelector('#copy-result').addEventListener('click', async event => {
   const button = event.currentTarget;
   const item = examples[selected];
-  const text = `【演示示例，非真实商品】\n${item.name}\n${item.tags.join(' · ')}\n${item.price}\n${item.copy}`;
+  const text = `【商品资料预览】\n${item.name}\n${item.tags.join(' · ')}\n${item.price}\n${item.copy}`;
   try {
     await navigator.clipboard.writeText(text);
     button.textContent = '已复制 ✓';
-    status.textContent = '示例商品信息已复制。';
+    status.textContent = '商品资料已复制。';
   } catch {
     status.textContent = '浏览器未允许复制，请选择商品信息手动复制。';
   }
 });
 
-// Connect the real-photography gallery to the authored demonstration.
+// Connect each food photo to its matching menu-item preview.
 document.querySelectorAll('[data-preview]').forEach(link => link.addEventListener('click', () => {
   if (!playing) document.querySelector('[data-dish=' + link.dataset.preview + ']').click();
 }));
